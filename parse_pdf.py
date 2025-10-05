@@ -78,15 +78,7 @@ def parse_tables_with_openai(base64_images):
                 {
                     "type": "text",
                     "text": (
-                        "You are an expert data extraction assistant. Your task is to analyze the following images, "
-                        "which are pages from a PDF document. These pages contain tables of data.\n\n"
-                        "Please perform the following actions:\n"
-                        "1. Identify all the tables across all the provided images.\n"
-                        "2. Extract the data from these tables.\n"
-                        "3. Consolidate the data into a single table.\n"
-                        "4. Return the consolidated data in a clean, standard CSV format.\n"
-                        "5. The first row of the CSV should be a header row that accurately describes each column.\n\n"
-                        "Do not include any explanations, comments, or any text other than the CSV data itself."
+                        "You are an expert data extraction assistant. Your task is to analyze the provided image(s) containing data tables and convert them into a single, clean CSV format. **Instructions** 1. Extract all tabular data, using the table's headers as the header row for the CSV. The first row of data must be the entry for the 'FedEx® Envelope up to 8 oz.'. Proceed to extract the data for all subsequent weight increments shown, from 1 lb up to 150 lbs. **Output Format:** Return only the raw CSV data. Do not include any explanations, comments, or surrounding text"
                     )
                 },
                 *[
