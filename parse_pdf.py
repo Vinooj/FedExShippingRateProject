@@ -66,6 +66,7 @@ def pdf_pages_to_base64_images(file_path, start_page, end_page):
     print(f"Successfully converted {len(base64_images)} pages to images.")
     return base64_images
 
+
 def parse_tables_with_openai(base64_images):
     """Uses OpenAI's GPT-4 Vision model to extract tabular data from images."""
     print("Sending images to OpenAI for analysis. This can take some time...")
@@ -78,7 +79,31 @@ def parse_tables_with_openai(base64_images):
                 {
                     "type": "text",
                     "text": (
-                        "You are an expert data extraction assistant. Your task is to analyze the provided image(s) containing data tables and convert them into a single, clean CSV format. **Instructions** 1. Extract all tabular data, using the table's headers as the header row for the CSV. The first row of data must be the entry for the 'FedEx® Envelope up to 8 oz.'. Proceed to extract the data for all subsequent weight increments shown, from 1 lb up to 150 lbs. **Output Format:** Return only the raw CSV data. Do not include any explanations, comments, or surrounding text"
+                        "You are a raw tabular transcription engine. Convert the shipping-rate tables shown across ALL provided images into ONE continuous CSV. Do not interpret or summarize—transcribe every visible cell.\n"
+                        "\n"
+                        "Output rules (mandatory):\n"
+                        "1) Return ONLY raw CSV text. No markdown, no prose, no code fences.\n"
+                        "2) Produce exactly 152 lines total: 1 header + 151 data rows. Order:\n"
+                        "   • Header (7 columns, exact): \"Service lbs,Next day by 8:30 a.m. — FedEx First Overnight,Next day by 10:30 a.m. — FedEx Priority Overnight,Next day by 3 p.m. — FedEx Standard Overnight,2-day by 10:30 a.m. — FedEx 2Day AM,2-day by 5 p.m. — FedEx 2Day,3-day by 5 p.m. — FedEx Express Saver\"\n"
+                        "   • Row 2 label exactly: \"FedEx® Envelope up to 8 oz.\"\n"
+                        "   • Rows 3–153 labels: 1,2,3,…,150 (one per lb).\n"
+                        "3) Every row must have exactly 7 comma-separated fields; no blank rows.\n"
+                        "4) If a price is unreadable, write \"NA\". Never omit a cell or row.\n"
+                        "5) Never use ellipses (\"...\") or ranges. Every weight must appear explicitly.\n"
+                        "6) Numbers: remove currency symbols and commas; keep two decimals (e.g., 73.31). Trim whitespace. No extra spaces around commas.\n"
+                        "7) Treat images as one continuous table; ignore page headers/footers/notes.\n"
+                        "8) If a weight is printed on one line and prices on the next, merge into a single CSV row for that weight.\n"
+                        "9) If a weight appears twice, keep the most complete row (more non-NA cells).\n"
+                        "10) Do not invent values.\n"
+                        "\n"
+                        "Validation (you must self-check before responding):\n"
+                        "• Total lines = 152.\n"
+                        "• First data row label exactly \"FedEx® Envelope up to 8 oz.\".\n"
+                        "• Last data row label \"150\".\n"
+                        "• 7 columns on every row.\n"
+                        "• No markdown or commentary.\n"
+                        "\n"
+                        "Return ONLY the CSV text that satisfies these rules."
                     )
                 },
                 *[
